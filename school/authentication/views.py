@@ -1,40 +1,28 @@
-
-from django.http import JsonResponse
-
-from rest_framework.decorators import  api_view
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth.hashers import make_password, check_password
 from .models import CreateChannel
-from .serializers import CreateChannelSerializer
-from django.contrib.auth.hashers import make_password
+from .serializers import CreateChannelSerializer, SignInSerializer
+
 @api_view(['POST'])
-def createChannel(request):
-    
-    serializer = CreateChannelSerializer(data= request.data)
-    
+def create_channel(request):
+    serializer = CreateChannelSerializer(data=request.data)
     if serializer.is_valid():
-        channel = CreateChannel(
-            channel_name = serializer.validated_data["channel_name"],
-            channel_email = serializer.validated_data["channel_email"],
-            channel_password =make_password(serializer.validated_data["channel_password"]) ,
-            channel_phone = serializer.validated_data["channel_phone"],
-            channel_desc = serializer.validated_data["channel_desc"],
-            channel_img = serializer.validated_data["channel_img"],
-            channel_likes = serializer.validated_data["channel_likes"],
-            channel_type = serializer.validated_data["channel_type"],
-            channel_verifycode = serializer.validated_data["channel_verifycode"],
-            channel_approve = serializer.validated_data["channel_approve"],
-            
-        )
-        channel.save()
-        return JsonResponse({"status":"success","message":"channel has been created","data":serializer.validated_data})
-    return JsonResponse({"status":"failure","message":serializer.errors})
+        serializer.save()
+        return Response({"status": "success", "message": "Channel has been created", "data": serializer.data}, status=status.HTTP_201_CREATED)
+    return Response({"status": "failure", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-
-
-
-        
-
+@api_view(['POST'])
+def sign_in(request):
+    serializer = SignInSerializer(data=request.data)
+    if serializer.is_valid():
+        try:
+            channel = CreateChannel.objects.get(channel_email=serializer.validated_data['channel_email'])
+            if check_password(serializer.validated_data['channel_password'], channel.channel_password):
+                return Response({"status": "success", "message": "Sign-in successful", "data": {"channel_name": channel.channel_name, "channel_email": channel.channel_email}}, status=status.HTTP_200_OK)
+            else:
+                return Response({"status": "failure", "message": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED)
+        except CreateChannel.DoesNotExist:
+            return Response({"status": "failure", "message": "Channel does not exist"}, status=status.HTTP_404_NOT_FOUND)
+    return Response({"status": "failure", "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
