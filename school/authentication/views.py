@@ -7,6 +7,18 @@ from .models import Channel
 from .serializers import ChannelSerializer
 import random
 
+
+@api_view(['POST'])
+def get_user_profile(request):
+    email = request.data.get('channel_email')
+    try:
+        user = Channel.objects.get(channel_email=email)
+        serializer = ChannelSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Channel.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    
 @api_view(['POST'])
 def signup(request):
     data = request.data
