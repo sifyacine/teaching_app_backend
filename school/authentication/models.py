@@ -21,7 +21,7 @@ class ChannelManager(BaseUserManager):
         return self.create_user(channel_email, channel_password, **extra_fields)
 
 class Channel(AbstractBaseUser):
-    channel_name = models.CharField(max_length=15, default="Unknown", validators=[MinLengthValidator(3)])
+    channel_name = models.CharField(max_length=150, default="Unknown", validators=[MinLengthValidator(3)])
     channel_email = models.EmailField(max_length=254, unique=True)
     channel_phone = models.CharField(max_length=10, validators=[RegexValidator(regex=r'^\d{10}$', message='Phone number must be 10 digits')])
     channel_desc = models.TextField(max_length=275, blank=True)
