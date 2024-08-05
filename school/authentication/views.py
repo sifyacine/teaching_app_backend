@@ -1,10 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Channel
 from .serializers import ChannelSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
 import random
 
 
@@ -18,16 +19,27 @@ def get_user_profile(request):
     except Channel.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    
+
 @api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
 def signup(request):
     data = request.data
     serializer = ChannelSerializer(data=data)
     if serializer.is_valid():
         channel = serializer.save()
+        
+        # Generate and save the verification code
         verify_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
         channel.channel_verifycode = verify_code
+        
+        # Save the uploaded image
+        channel_img = request.FILES.get('channel_img')
+        if channel_img:
+            channel.channel_img.save(channel_img.name, channel_img)
+        
         channel.save()
+
+        # Send verification email
         send_mail(
             'Your verification code',
             f'Your verification code is {verify_code}',
