@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import create_channel, sign_in
+from .views import signup, signin, user_logout, verify_code
 
 urlpatterns = [
-    path('createchannel/', create_channel, name='create-channel'),
-    path('signin/', sign_in, name='sign-in'),
+    path('createchannel/', signup, name='signup'),
+    path('signin/', signin, name='signin'),
+    path('logout/', user_logout, name='logout'),
+    path('verify/', verify_code, name='verify_code'),
 ]
