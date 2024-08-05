@@ -1,6 +1,4 @@
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
 from django.core.mail import send_mail
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
