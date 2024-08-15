@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-2k4!o45koj@5!(1jewywxkgp)wns!7d3p*if+-9rn#0j-ri5e5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'authentication.Channel'
 
@@ -46,7 +46,8 @@ SIMPLE_JWT = {
 # Application definition
 
 INSTALLED_APPS = [
-
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'authentication.apps.AuthenticationConfig',
     'django_cryptography',
@@ -58,6 +59,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'chat',
+    'notifications',
+
 ]
 
 MIDDLEWARE = [
@@ -95,7 +99,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'school.wsgi.application'
+# WSGI_APPLICATION = 'school.wsgi.application'
+
+ASGI_APPLICATION = 'school.asgi.application'
 
 
 # Database

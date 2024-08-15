@@ -8,7 +8,7 @@ class ChannelSerializer(serializers.ModelSerializer):
         model = Channel
         fields = [
             'channel_name', 'channel_email', 'channel_phone', 'channel_password',
-            'channel_teacher', 'channel_img', 'channel_desc'
+            'channel_teacher', 'channel_img', 'channel_desc', 'channel_likes'
         ]
 
     def create(self, validated_data):
