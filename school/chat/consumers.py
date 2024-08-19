@@ -11,16 +11,15 @@ class ChatroomConsumer(AsyncWebsocketConsumer):
         self.group_id = self.scope['url_route']['kwargs']['group_id']
         self.group_name = f'chat_{self.group_id}'
 
-        # Add the user to the group channel
+        # Join the group channel
         await self.channel_layer.group_add(
             self.group_name,
             self.channel_name
         )
-
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Remove the user from the group channel
+        # Leave the group channel
         await self.channel_layer.group_discard(
             self.group_name,
             self.channel_name
@@ -41,7 +40,7 @@ class ChatroomConsumer(AsyncWebsocketConsumer):
             {
                 'type': 'chat_message',
                 'message': message,
-                'user': user.channel_name
+                'user': user.username  # Changed from channel_name to username
             }
         )
 
@@ -62,6 +61,7 @@ class ChatroomConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_message(self, user, group, message):
         return Message.objects.create(sender=user, group=group, content=message)
+
 
 
 class OnlineStatusConsumer(AsyncWebsocketConsumer):
