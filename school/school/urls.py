@@ -19,15 +19,19 @@ from django.urls import path , include
 from django.conf import settings
 from django.conf.urls.static import static
 
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('authentication/',include('authentication.urls')),
-    path('chat/', include('chat.urls')),
-    path('notifications/', include('notifications.urls')),
-    
+    path('post/',include('posts.urls')),
+    path('shortvideo/',include('shortvideo.urls')),
+    path('course/',include('courses.urls')),
+    path('video/',include('videos.urls')),
+    path('postlike/',include('postlike.urls')),
+    path('postcomment/',include('postcomment.urls')),
+    path('myposts/',include('myposts.urls')),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+

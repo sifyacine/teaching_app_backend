@@ -10,13 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-import os
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+TIME_ZONE = 'Africa/Algiers'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -25,43 +24,40 @@ SECRET_KEY = 'django-insecure-2k4!o45koj@5!(1jewywxkgp)wns!7d3p*if+-9rn#0j-ri5e5
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = ['*']
-
-AUTH_USER_MODEL = 'authentication.Channel'
-
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-}
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'onechot20042020@gmail.com'
+EMAIL_HOST_PASSWORD = 'hwqj fcrd gctw faoe'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 
-SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer',),
-}
-
-
+ALLOWED_HOSTS = ['127.0.0.1', '[::1]']
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # حيث BASE_DIR هو مسار المشروع الرئيسي
+MEDIA_URL = '/media/'
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',
-    'channels',
+
     'django.contrib.admin',
+    'posts.apps.PostsConfig',
+    'shortvideo.apps.ShortvideoConfig',
+    'postlike.apps.PostlikeConfig',
+    'postcomment.apps.PostcommentConfig',
+    'myposts.apps.MypostsConfig',
+
+    'courses.apps.CoursesConfig',
+    'videos.apps.VideosConfig',
     'authentication.apps.AuthenticationConfig',
+    
     'django_cryptography',
     'corsheaders',
     'rest_framework',
-    'rest_framework_simplejwt',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'chat',
-    'notifications',
-
 ]
 
 MIDDLEWARE = [
@@ -99,9 +95,9 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'school.wsgi.application'
+WSGI_APPLICATION = 'school.wsgi.application'
 
-ASGI_APPLICATION = 'school.asgi.application'
+
 
 
 # Database
@@ -120,21 +116,6 @@ DATABASES = {
         }
     }
 }
-
-'''DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-'''
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ycn585@gmail.com'
-EMAIL_HOST_PASSWORD = 'imia qdpe lxdz aoyo'
-DEFAULT_FROM_EMAIL = 'ycn585@gmail.com'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -170,29 +151,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
-
-# Media files (Uploaded by users)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Ensure the BASE_DIR is correctly set
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
-}
