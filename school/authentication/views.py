@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, logout
+from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
@@ -7,26 +7,18 @@ from .models import Channel
 from .serializers import ChannelSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 import random
-from rest_framework_simplejwt.tokens import RefreshToken
-import logging
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def get_user_profile(request):
-    email = request.query_params.get('channel_email')
-    
-    if not email:
-        return Response({'error': 'No email provided'}, status=status.HTTP_400_BAD_REQUEST)
-
+    email = request.data.get('channel_email')
     try:
         user = Channel.objects.get(channel_email=email)
         serializer = ChannelSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Channel.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        logger.error(f"Error during get user profile: {e}")
-        return Response({'error': 'An error occurred while fetching user profile'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
@@ -58,43 +50,29 @@ def signup(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-logger = logging.getLogger(__name__)
-
 @api_view(['POST'])
 def signin(request):
     data = request.data
     email = data.get('channel_email')
     password = data.get('channel_password')
 
-    logger.info(f"Received signin request for email: {email}")
-
-    if not email or not password:
-        return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
-
     try:
-        # Authenticate user using email and password
-        user = authenticate(request, username=email, password=password)
+        user = Channel.objects.get(channel_email=email)
+    except Channel.DoesNotExist:
+        return Response({'error': 'Email does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
-        if user is None:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+    if not user.check_password(password):
+        return Response({'error': 'Incorrect password'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not user.is_active:
-            return Response({'error': 'User account is inactive'}, status=status.HTTP_403_FORBIDDEN)
+    if not user.channel_approve:
+        return Response({'error': 'Email not verified'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Generate tokens
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        logger.error(f"Error during signin: {e}")
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
+    user = authenticate(request, username=email, password=password)
+    if user is not None:
+        login(request, user)
+        return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+    
+    return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def user_logout(request):
